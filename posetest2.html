@@ -5,6 +5,8 @@
 <script>
 const out=document.getElementById('out');
 const lines=[]; const w=(s)=>{lines.push(s); out.textContent=lines.join('\n');};
+let t0=Date.now(); setInterval(()=>{ if(!document.body.dataset.done){ out.textContent=lines.join('\n')+'\n…waiting '+Math.round((Date.now()-t0)/1000)+'s'; } },1000);
+
 window.onerror=(m,s,l,c,e)=>{ w('UNCAUGHT: '+m+(e&&e.stack?'\n'+e.stack:'')); };
 (async()=>{
  try{
@@ -15,11 +17,11 @@ window.onerror=(m,s,l,c,e)=>{ w('UNCAUGHT: '+m+(e&&e.stack?'\n'+e.stack:'')); };
   p.onResults(r=>{});
   w('initializing…');
   await p.initialize();
-  w('POSE INIT OK');
+  w('POSE INIT OK'); document.body.dataset.done='ok';
   const fake={image:createCanvas()};
   function createCanvas(){const c=document.createElement('canvas');c.width=64;c.height=64;const x=c.getContext('2d');x.fillStyle='#456';x.fillRect(0,0,64,64);return c;}
   await p.send({image:createCanvas()});
-  w('SEND OK (landmarks pipeline alive)');
- }catch(e){ w('ERR: '+(e&&e.message||e)); if(e&&e.stack) w('STACK: '+e.stack); }
+  w('SEND OK (landmarks pipeline alive)'); document.body.dataset.done='ok2';
+ }catch(e){ w('ERR: '+(e&&e.message||e)); if(e&&e.stack) w('STACK: '+e.stack); document.body.dataset.done='err'; }
 })();
 </script></body></html>
