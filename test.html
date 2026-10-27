@@ -1,0 +1,55 @@
+<!doctype html><html><head><meta charset="utf-8"><title>fit test</title>
+<style>
+body{background:#141821;color:#e8ecf4;font:13px system-ui;margin:10px}
+.g{display:inline-block;margin:8px;text-align:center;vertical-align:top}
+canvas{background:#0a0d13;border-radius:8px}
+.lbl{color:#93a0b4;margin-top:3px}
+h3{margin:6px 0}
+</style></head><body>
+<h3>fit test (synthetic body, no camera)</h3>
+<script src="fit.js"></script>
+<script>
+function mockLM(){
+  const a=new Array(33).fill(null);
+  a[11]={x:.40,y:.26}; a[12]={x:.60,y:.27};
+  a[13]={x:.355,y:.42}; a[14]={x:.645,y:.43};
+  a[15]={x:.34,y:.57};  a[16]={x:.66,y:.58};
+  a[23]={x:.43,y:.58};  a[24]={x:.57,y:.59};
+  return a;
+}
+function drawBody(x,W,H){
+  x.fillStyle='#d9a98c'; x.strokeStyle='#d9a98c';
+  x.beginPath(); x.arc(W*.5,H*.14,W*.055,0,7); x.fill();
+  x.fillRect(W*.475,H*.17,W*.05,H*.06);
+  x.beginPath(); x.moveTo(W*.40,H*.26); x.lineTo(W*.60,H*.27); x.lineTo(W*.57,H*.58); x.lineTo(W*.43,H*.58); x.closePath(); x.fill();
+  x.lineWidth=W*.05; x.lineCap='round';
+  x.beginPath(); x.moveTo(W*.41,H*.27); x.lineTo(W*.355,H*.42); x.lineTo(W*.34,H*.57); x.stroke();
+  x.beginPath(); x.moveTo(W*.59,H*.28); x.lineTo(W*.645,H*.43); x.lineTo(W*.66,H*.58); x.stroke();
+  x.lineWidth=W*.06;
+  x.beginPath(); x.moveTo(W*.46,H*.58); x.lineTo(W*.45,H*.95); x.stroke();
+  x.beginPath(); x.moveTo(W*.54,H*.58); x.lineTo(W*.55,H*.95); x.stroke();
+}
+const GS=[
+ {name:'White Tee',src:'samples/shirt-white.png',len:1,flare:0,sleeve:.3,fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
+ {name:'Blue Shirt',src:'samples/shirt-blue.png',len:1.05,flare:0,sleeve:.45,fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
+ {name:'Teal Kurta',src:'samples/kurta.png',len:1.25,flare:0.05,sleeve:1,fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
+ {name:'Hoodie',src:'samples/hoodie.png',len:1,flare:0,sleeve:1,fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
+ {name:'Denim Jacket',src:'samples/jacket.png',len:0.95,flare:0,sleeve:1,fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
+ {name:'Green Dress',src:'samples/dress.png',len:1.6,flare:0.5,sleeve:.3,fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
+];
+(async()=>{
+ for(const g of GS){
+  g.img=await new Promise(r=>{const i=new Image(); i.onload=()=>r(i); i.onerror=()=>r(null); i.src=g.src;});
+  const W=380,H=560;
+  const c=document.createElement('canvas'); c.width=W; c.height=H;
+  const x=c.getContext('2d');
+  drawBody(x,W,H);
+  if(g.img) drawGarmentWarp(x,g.img,g.fit,mockLM(),W,H,false,g.len,g.flare);
+  const d=document.createElement('div'); d.className='g'; d.appendChild(c);
+  const l=document.createElement('div'); l.className='lbl';
+  l.textContent=g.name+(g.img?'':' (load fail)'); d.appendChild(l);
+  document.body.appendChild(d);
+ }
+ document.title='fit test DONE';
+})();
+</script></body></html>
