@@ -167,8 +167,11 @@ function runMatte(){
 /* ---------- camera ---------- */
 async function startCamera(){
   try{
-    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}},audio:false});
-  }catch(e){ status('Camera nahi khuli: '+e.name, false); return; }
+    try{ stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}},audio:false}); }
+    catch(e1){ stream=await navigator.mediaDevices.getUserMedia({video:true,audio:false}); }
+  }catch(e){
+    const m={NotAllowedError:'Permission block hai, address bar ke camera icon se Allow karo',NotFoundError:'Koi camera mila hi nahi',NotReadableError:'Camera doosri app ya tab me busy hai, woh band karo',OverconstrainedError:'Camera settings fit nahi hui',SecurityError:'HTTPS zaroori hai'};
+    status('Camera nahi khuli: '+(m[e.name]||e.name), false); return; }
   video.srcObject=stream;
   try{ await video.play(); }catch(e){}
   cameraOn=true; startBtn.textContent='Stop camera';
