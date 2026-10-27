@@ -66,7 +66,7 @@ body.kiosk #kexit{display:inline-flex;}
   #dock{gap:8px;padding:10px;}
 }
 
-#recap{position:absolute;inset:0;background:rgba(7,10,16,.93);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;z-index:20;border-radius:18px;}
+#recap[hidden]{display:none;}#recap{position:absolute;inset:0;background:rgba(7,10,16,.93);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;z-index:20;border-radius:18px;}
 #recap .rbox{width:min(720px,94%);background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:0 30px 80px rgba(0,0,0,.6);}
 #recap h3{margin:0;font-size:15px;}
 #recVid{width:100%;border-radius:12px;background:#000;max-height:52vh;}
