@@ -44,7 +44,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-a
 .dot{width:8px;height:8px;border-radius:50%;background:#f5a524;flex:0 0 auto;}
 .dot.ok{background:#2dd4a7;}
 #top{position:absolute;top:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:5;flex-wrap:wrap;justify-content:center;}
-#top select,#top .btn{padding:8px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(13,18,28,.78);color:var(--text);font-size:12.5px;backdrop-filter:blur(10px);cursor:pointer;}
+#top select,#top .btn{padding:8px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(13,18,28,.78);color:var(--text);font-size:12.5px;backdrop-filter:blur(10px);cursor:pointer;max-width:200px;min-width:0;color-scheme:dark;}
 #dock{position:absolute;left:50%;transform:translateX(-50%);bottom:18px;display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:18px;background:rgba(13,18,28,.78);backdrop-filter:blur(14px);border:1px solid var(--line);box-shadow:0 12px 40px rgba(0,0,0,.45);flex-wrap:wrap;justify-content:center;max-width:calc(100% - 36px);z-index:5;}
 .btn{padding:10px 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);cursor:pointer;font-size:13px;white-space:nowrap;}
 .btn:hover{filter:brightness(1.15);}

@@ -185,10 +185,12 @@ async function listCams(){
     const ds=await navigator.mediaDevices.enumerateDevices();
     const cams=ds.filter(d=>d.kind==='videoinput');
     camSel.innerHTML='';
+    camSel.style.display=cams.length?'':'none';
     cams.forEach((c,i)=>{ const o=document.createElement('option'); o.value=c.deviceId;
       o.textContent=c.label||('Camera '+(i+1)); camSel.appendChild(o); });
   }catch(e){}
 }
+camSel.style.display='none';
 camSel.addEventListener('change',async()=>{
   if(!cameraOn) return;
   try{
