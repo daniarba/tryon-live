@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TryOn Live: Real-Time Virtual Try-On",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Try on any garment live from your webcam. Right-click any garment photo on any site to try it, plus Try On buttons on product pages. AI body tracking + segmentation compositing. Free, offline.",
   "action": {
     "default_title": "Open Virtual Try-On"
