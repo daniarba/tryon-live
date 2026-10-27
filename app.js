@@ -7,13 +7,40 @@ const $=(id)=>document.getElementById(id);
 const video=$('video'), cv=$('cv'), ctx=cv.getContext('2d');
 /* basic placement: default torso landmarks used until the body model locks on */
 const FAKELM=(()=>{ const f=new Array(25).fill(null); f[11]={x:0.39,y:0.33}; f[12]={x:0.61,y:0.33}; f[23]={x:0.415,y:0.54}; f[24]={x:0.585,y:0.54}; return f; })();
+
+/* smart fallback: jab body model load na ho, matte se torso ka andaza */
+let fbLM=null, fbLMAt=0;
+function fallbackLM(){
+  const now=performance.now();
+  if(fbLM && now-fbLMAt<500) return fbLM;
+  const src=(matteOK&&matteC)?matteC:mpMask;
+  if(src){
+    try{
+      const w=src.width,hh=src.height,d=src.getContext('2d').getImageData(0,0,w,hh).data;
+      let top=hh,bot=0,xmin=w,xmax=0,cnt=0;
+      for(let y=0;y<hh;y++)for(let x=0;x<w;x++){
+        if(d[(y*w+x)*4+3]>120){ cnt++; if(y<top)top=y; if(y>bot)bot=y; if(x<xmin)xmin=x; if(x>xmax)xmax=x; }
+      }
+      if(cnt>400){
+        const bw=xmax-xmin, bh=bot-top;
+        const f=new Array(25).fill(null);
+        f[11]={x:(xmin+0.30*bw)/w, y:(top+0.24*bh)/hh};
+        f[12]={x:(xmin+0.70*bw)/w, y:(top+0.24*bh)/hh};
+        f[23]={x:(xmin+0.34*bw)/w, y:(top+0.56*bh)/hh};
+        f[24]={x:(xmin+0.66*bw)/w, y:(top+0.56*bh)/hh};
+        fbLM=f; fbLMAt=now; return f;
+      }
+    }catch(e){}
+  }
+  return FAKELM;
+}
 const stTxt=$('stTxt'), stDot=document.querySelector('#status .dot'), fpsTxt=$('fpsTxt');
 const camSel=$('cam'), qualSel=$('qual'), matteSel=$('matte');
 const grid=$('grid'), searchEl=$('search'), chipsEl=$('chips'), cntEl=$('cnt'), uploadEl=$('upload');
 const startBtn=$('start'), snapBtn=$('snap'), kioskBtn=$('kiosk'), kexit=$('kexit'), mirrorBtn=$('mirror');
 
 let cameraOn=false, stream=null, mirrored=true, complexity=1;
-let pose=null, modelReady=false;
+let pose=null, modelReady=false, sendErrs=0, initBusy=false, initErr=null;
 let lastLm=null, lastLmAt=0, mpMask=null;
 let ORT=null, ortS=null, matteOK=false, matBusy=false, matteC=null, matteX=null, prevMatte=null;
 let garments=[], selected=null, activeCat='all', query='';
@@ -37,6 +64,20 @@ function status(t, ok){ stTxt.textContent=t; stDot.className='dot'+(ok?' ok':'')
 
 /* ---------- garment loading ---------- */
 function loadImg(src){ return new Promise(res=>{ const i=new Image(); i.crossOrigin='anonymous'; i.onload=()=>res(i); i.onerror=()=>res(null); i.src=src; }); }
+async function loadGarmentUrl(u){
+  try{
+    if(isExt){ const r=await fetch(u); const b=await r.blob(); return await loadImg(URL.createObjectURL(b)); }
+    return await loadImg(u);
+  }catch(e){ return null; }
+}
+async function addGarmentFromUrl(u,name){
+  const img=await loadGarmentUrl(u);
+  if(!img){ status('Garment load nahi hui (site ne block kiya), image save karke Upload karo', false); return null; }
+  const g={ id:'u'+Date.now()+Math.random().toString(36).slice(2,6), name:name||'Page garment', cat:'uploaded',
+    src:u, img, len:1.1, sleeve:0.4, flare:0, tw:0.6, fit:defFit() };
+  garments.push(g); await idbPut(g); renderCatalog(); wear(g);
+  return g;
+}
 async function addBuiltins(){
   for(const g of BUILTIN){ g.img=await loadImg(g.src); g.fit=defFit(); if(g.img) garments.push(g); }
 }
@@ -105,11 +146,17 @@ uploadEl.addEventListener('change',async()=>{
 });
 
 /* ---------- pose ---------- */
-function initPose(){
-  pose=new Pose({locateFile:(f)=>assetBase+'lib/'+f});
-  pose.setOptions({modelComplexity:complexity, smoothLandmarks:true, enableSegmentation:true,
-    minDetectionConfidence:0.5, minTrackingConfidence:0.5});
-  pose.onResults(onResults);
+async function initPose(){
+  if(initBusy) return; initBusy=true;
+  try{
+    pose=new Pose({locateFile:(f)=>assetBase+'lib/'+f});
+    pose.setOptions({modelComplexity:complexity, smoothLandmarks:true, enableSegmentation:true,
+      minDetectionConfidence:0.5, minTrackingConfidence:0.5});
+    pose.onResults(onResults);
+    try{ await pose.initialize(); }
+    catch(e){ initErr=(e&&e.message)||String(e);
+      status('Body model error: '+initErr+' | page refresh karke dobara try karo', false); }
+  }finally{ initBusy=false; }
 }
 function onResults(r){
   if(r.poseLandmarks){ lastLm=r.poseLandmarks; lastLmAt=performance.now(); }
@@ -179,7 +226,7 @@ async function startCamera(){
   try{ await video.play(); }catch(e){}
   cameraOn=true; startBtn.textContent='Stop camera';
   status('Body tracking model load ho raha hai…');
-  setTimeout(()=>{ if(cameraOn && !modelReady) status('Model nahi mila, abhi basic placement me kapay pehn rahe hain', true); },15000);
+  setTimeout(()=>{ if(cameraOn && !modelReady) status('Model abhi load ho raha hai, filhal basic placement chal raha hai (1 min tak na chale to refresh karo)', true); },15000);
   listCams();
   if(!pose) initPose();
   sendLoop();
@@ -215,7 +262,8 @@ matteSel.addEventListener('change',()=>{ if(matteSel.value==='1') initModNet(); 
 
 async function sendLoop(){
   if(!cameraOn) return;
-  if(video.readyState>=2 && pose){ try{ await pose.send({image:video}); }catch(e){} }
+  if(video.readyState>=2 && pose){ try{ await pose.send({image:video}); }
+    catch(e){ sendErrs++; if(sendErrs===3) status('Tracking model error: '+((e&&e.message)||e.name||'unknown')+' | refresh karke dobara try karo', false); } }
   if(cameraOn) setTimeout(sendLoop, 33);
 }
 
@@ -262,7 +310,7 @@ function render(){
   ctx.restore();
   const fresh=lastLm && (now-lastLmAt<700);
   if(selected && selected.img){
-    drawGarmentWarp(ctx,selected.img,selected.fit,fresh?lastLm:FAKELM,W,H,mirrored,selected.len,selected.flare,selected.tw);
+    drawGarmentWarp(ctx,selected.img,selected.fit,fresh?lastLm:fallbackLM(),W,H,mirrored,selected.len,selected.flare,selected.tw);
   }
   const mask=matteOK?matteC:(mpMask&&!matteOK?mpMask:null);
   if(fresh && mask) composite(mask,lastLm,W,H);
@@ -295,7 +343,9 @@ cv.addEventListener('drop',e=>{
   e.preventDefault(); cv.classList.remove('drag');
   const id=e.dataTransfer.getData('text/plain');
   const g=garments.find(x=>x.id===id);
-  if(g) wear(g);
+  if(g){ wear(g); return; }
+  const u=e.dataTransfer.getData('text/uri-list')||e.dataTransfer.getData('text/plain');
+  if(u && /^https?:/i.test(u.trim())) addGarmentFromUrl(u.trim(),'Dropped garment');
 });
 
 /* ---------- boot ---------- */
@@ -308,6 +358,8 @@ cv.addEventListener('drop',e=>{
     if(img) garments.push({id:u.id,name:u.name,cat:'uploaded',src:u.src,img,len:1.1,sleeve:0.4,flare:0,fit:defFit()});
   }
   renderCatalog();
+  const pu=new URLSearchParams(location.search).get('garment');
+  if(pu) await addGarmentFromUrl(pu,'Page garment');
   render();
 })();
 window.addEventListener('error',e=>status('Error: '+(e.message||'unknown'), false));

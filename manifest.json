@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "TryOn Live: Real-Time Virtual Try-On",
-  "version": "1.1.3",
-  "description": "Try on any garment live from your webcam. AI body tracking + segmentation compositing: arms and hands stay in front of the garment. Free, offline.",
+  "version": "1.2.0",
+  "description": "Try on any garment live from your webcam. Right-click any garment photo on any site to try it. AI body tracking + segmentation compositing. Free, offline.",
   "action": {
     "default_title": "Open Virtual Try-On"
   },
@@ -16,5 +16,11 @@
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
-  }
+  },
+  "permissions": [
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ]
 }

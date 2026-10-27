@@ -1,0 +1,14 @@
+<!doctype html><meta charset=utf-8><title>pose test</title>
+<body style="background:#111;color:#0f0;font:16px monospace"><pre id=out>starting...</pre>
+<script src="lib/pose.js?v=2"></script>
+<script>
+const out=document.getElementById('out');
+(async()=>{
+  try{
+    const p=new Pose({locateFile:f=>'lib/'+f});
+    p.setOptions({modelComplexity:1, enableSegmentation:true});
+    await p.initialize();
+    out.textContent='POSE INIT OK';
+  }catch(e){ out.textContent='POSE INIT FAIL: '+((e&&e.message)||e); }
+})();
+</script>
