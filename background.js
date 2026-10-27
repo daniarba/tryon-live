@@ -7,3 +7,10 @@ chrome.contextMenus.onClicked.addListener((info) => {
 chrome.action.onClicked.addListener(() => {
   chrome.tabs.create({ url: chrome.runtime.getURL('app.html') });
 });
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg && msg.type === 'TRYON_INTEGRATE_WEAR' && msg.url) {
+    chrome.tabs.create({ url: chrome.runtime.getURL('app.html') + '?garment=' + encodeURIComponent(msg.url) });
+    sendResponse({ ok: true });
+  }
+  return false;
+});

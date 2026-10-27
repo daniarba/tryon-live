@@ -230,10 +230,13 @@ async function startCamera(){
   listCams();
   if(!pose) initPose();
   sendLoop();
+  startRec();
 }
 function stopCamera(){ cameraOn=false;
   if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
-  startBtn.textContent='Start camera'; status('Camera band'); }
+  startBtn.textContent='Start camera';
+  stopRec(true);
+  status('Camera band'); }
 async function listCams(){
   try{
     const ds=await navigator.mediaDevices.enumerateDevices();
@@ -347,6 +350,83 @@ cv.addEventListener('drop',e=>{
   const u=e.dataTransfer.getData('text/uri-list')||e.dataTransfer.getData('text/plain');
   if(u && /^https?:/i.test(u.trim())) addGarmentFromUrl(u.trim(),'Dropped garment');
 });
+
+/* ---------- session recording + recap (Anywear-style) ---------- */
+let rec=null, recChunks=[], recBlob=null, recUrl=null, recShowNext=false;
+function recMime(){
+  const opts=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4'];
+  if(window.MediaRecorder && MediaRecorder.isTypeSupported){
+    for(const m of opts){ try{ if(MediaRecorder.isTypeSupported(m)) return m; }catch(e){} }
+  }
+  return '';
+}
+function recDot(on){ const d=$('recDot'); if(d) d.hidden=!on; }
+function startRec(){
+  try{
+    if(!cv.captureStream || !window.MediaRecorder) return;
+    const cs=cv.captureStream(30); const mime=recMime();
+    rec=new MediaRecorder(cs, mime?{mimeType:mime}:undefined);
+    recChunks=[];
+    rec.ondataavailable=e=>{ if(e.data && e.data.size) recChunks.push(e.data); };
+    rec.onstop=()=>{
+      if(recChunks.length) recBlob=new Blob(recChunks,{type:rec.mimeType||'video/webm'});
+      recChunks=[];
+      if(recShowNext && recBlob) showRecap();
+      recShowNext=false;
+    };
+    rec.start(1000); recDot(true);
+  }catch(e){}
+}
+function stopRec(show){
+  recShowNext=!!show; recDot(false);
+  try{ if(rec && rec.state!=='inactive') rec.stop(); }catch(e){}
+  rec=null;
+}
+function showRecap(){
+  const box=$('recap'); if(!box || !recBlob) return;
+  const v=$('recVid');
+  if(recUrl){ try{ URL.revokeObjectURL(recUrl); }catch(e){} }
+  recUrl=URL.createObjectURL(recBlob);
+  v.src=recUrl; v.play().catch(()=>{});
+  box.hidden=false;
+}
+function closeRecap(){
+  const box=$('recap'); if(box) box.hidden=true;
+  const v=$('recVid'); if(v){ try{ v.pause(); v.removeAttribute('src'); v.load(); }catch(e){} }
+  if(recUrl){ try{ URL.revokeObjectURL(recUrl); }catch(e){} recUrl=null; }
+  recBlob=null;
+}
+(function bindRecap(){
+  const c=$('recClose'); if(c) c.addEventListener('click',closeRecap);
+  const d=$('recDl'); if(d) d.addEventListener('click',()=>{
+    if(!recBlob) return;
+    const a=document.createElement('a');
+    a.href=recUrl||URL.createObjectURL(recBlob);
+    a.download='tryon-session.webm'; a.click();
+  });
+  const s=$('recShare'); if(s) s.addEventListener('click',async()=>{
+    if(!recBlob) return;
+    try{
+      const f=new File([recBlob],'tryon-session.webm',{type:recBlob.type||'video/webm'});
+      if(navigator.canShare && navigator.canShare({files:[f]})) await navigator.share({files:[f],title:'My TryOn session'});
+      else{ const dd=$('recDl'); if(dd) dd.click(); }
+    }catch(e){}
+  });
+})();
+
+/* ---------- inactivity reset (kiosk) ---------- */
+const INACT_MS=60000; let lastAct=Date.now();
+['pointermove','pointerdown','keydown','wheel','touchstart'].forEach(ev=>
+  document.addEventListener(ev,()=>{ lastAct=Date.now(); },{passive:true}));
+setInterval(()=>{
+  if(!cameraOn){ lastAct=Date.now(); return; }
+  if(Date.now()-lastAct>INACT_MS){
+    lastAct=Date.now();
+    stopRec(false);
+    selected=null; syncSliders();
+    status('60 sec idle: session reset ho gayi', true);
+  }
+},5000);
 
 /* ---------- boot ---------- */
 (async function boot(){
