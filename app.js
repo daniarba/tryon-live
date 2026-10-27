@@ -20,14 +20,14 @@ let fpsN=0, fpsT=performance.now();
 
 const CATS=[['all','All'],['tops','Tops'],['shirts','Shirts'],['kurta','Kurta'],['hoodie','Hoodie'],['jacket','Jackets'],['dress','Dresses'],['uploaded','Uploaded']];
 const BUILTIN=[
- {id:'white', name:'White Tee',        cat:'tops',   src:sampleBase+'shirt-white.png', len:1,    sleeve:0.3,  flare:0},
- {id:'black', name:'Black Tee',        cat:'tops',   src:sampleBase+'shirt-black.png', len:1,    sleeve:0.3,  flare:0},
- {id:'red',   name:'Red Tee',          cat:'tops',   src:sampleBase+'shirt-red.png',   len:1,    sleeve:0.3,  flare:0},
- {id:'blue',  name:'Blue Shirt',       cat:'shirts', src:sampleBase+'shirt-blue.png',  len:1.05, sleeve:0.45, flare:0},
- {id:'kurta', name:'Teal Kurta',       cat:'kurta',  src:sampleBase+'kurta.png',       len:1.25, sleeve:1,    flare:0.05},
- {id:'hoodie',name:'Charcoal Hoodie',  cat:'hoodie', src:sampleBase+'hoodie.png',      len:1,    sleeve:1,    flare:0},
- {id:'jacket',name:'Denim Jacket',     cat:'jacket', src:sampleBase+'jacket.png',      len:0.95, sleeve:1,    flare:0},
- {id:'dress', name:'Green Dress',      cat:'dress',  src:sampleBase+'dress.png',       len:1.6,  sleeve:0.3,  flare:0.5},
+ {id:'white', name:'White Tee',        cat:'tops',   src:sampleBase+'shirt-white.png', len:1,    sleeve:0.3,  flare:0, tw:0.775},
+ {id:'black', name:'Black Tee',        cat:'tops',   src:sampleBase+'shirt-black.png', len:1,    sleeve:0.3,  flare:0, tw:0.775},
+ {id:'red',   name:'Red Tee',          cat:'tops',   src:sampleBase+'shirt-red.png',   len:1,    sleeve:0.3,  flare:0, tw:0.775},
+ {id:'blue',  name:'Blue Shirt',       cat:'shirts', src:sampleBase+'shirt-blue.png',  len:1.05, sleeve:0.45, flare:0, tw:0.775},
+ {id:'kurta', name:'Teal Kurta',       cat:'kurta',  src:sampleBase+'kurta.png',       len:1.25, sleeve:1,    flare:0.05, tw:0.78},
+ {id:'hoodie',name:'Charcoal Hoodie',  cat:'hoodie', src:sampleBase+'hoodie.png',      len:1,    sleeve:1,    flare:0, tw:0.524},
+ {id:'jacket',name:'Denim Jacket',     cat:'jacket', src:sampleBase+'jacket.png',      len:0.95, sleeve:1,    flare:0, tw:0.699},
+ {id:'dress', name:'Green Dress',      cat:'dress',  src:sampleBase+'dress.png',       len:1.6,  sleeve:0.3,  flare:0.5, tw:0.562},
 ];
 function defFit(){ return {size:1, dy:0, dx:0, rot:0, opacity:0.96}; }
 
@@ -95,7 +95,7 @@ uploadEl.addEventListener('change',async()=>{
     const url=await new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(f); });
     const img=await loadImg(url); if(!img) continue;
     const g={ id:'u'+Date.now()+Math.random().toString(36).slice(2,6), name:f.name.replace(/\.[^.]+$/,''),
-      cat:'uploaded', src:url, img, len:1.1, sleeve:0.4, flare:0, fit:defFit() };
+      cat:'uploaded', src:url, img, len:1.1, sleeve:0.4, flare:0, tw:0.6, fit:defFit() };
     garments.push(g); await idbPut(g);
   }
   uploadEl.value=''; renderCatalog();
@@ -253,7 +253,7 @@ function render(){
   ctx.restore();
   const fresh=lastLm && (now-lastLmAt<700);
   if(fresh && selected && selected.img){
-    drawGarmentWarp(ctx,selected.img,selected.fit,lastLm,W,H,mirrored,selected.len,selected.flare);
+    drawGarmentWarp(ctx,selected.img,selected.fit,lastLm,W,H,mirrored,selected.len,selected.flare,selected.tw);
   }
   const mask=matteOK?matteC:(mpMask&&!matteOK?mpMask:null);
   if(fresh && mask) composite(mask,lastLm,W,H);

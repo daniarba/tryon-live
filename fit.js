@@ -6,9 +6,9 @@ function smooth(t){ t=clamp01(t); return t*t*(3-2*t); }
 /* lm: MediaPipe poseLandmarks (normalized). mirror flips x for selfie view.
    len: garment length multiplier (1 = regular top). flare: extra hem width.
    Warps the garment along the torso axis (shoulders -> hips) in strips. */
-function drawGarmentWarp(ctx, img, fit, lm, W, H, mirror, len, flare){
+function drawGarmentWarp(ctx, img, fit, lm, W, H, mirror, len, flare, tw){
   if(!img || !lm) return;
-  len = len || 1; flare = flare || 0;
+  len = len || 1; flare = flare || 0; tw = tw || 0.55;
   const flip = mirror ? (l)=>({x:1-l.x, y:l.y}) : (l)=>({x:l.x, y:l.y});
   const ls=flip(lm[11]), rs=flip(lm[12]), lh=flip(lm[23]), rh=flip(lm[24]);
   if(!ls||!rs||!lh||!rh) return;
@@ -35,7 +35,7 @@ function drawGarmentWarp(ctx, img, fit, lm, W, H, mirror, len, flare){
     ctx.globalAlpha=fit.opacity;
     ctx.translate(cx,cy);
     ctx.rotate(axis+fit.rot);
-    ctx.drawImage(img, 0, t0*ih, iw, sh+1, -w/2, -dstH/2, w, dstH);
+    const dw=w/Math.max(0.2,tw); ctx.drawImage(img, 0, t0*ih, iw, sh+1, -dw/2, -dstH/2, dw, dstH);
     ctx.restore();
   }
   ctx.globalAlpha=1;

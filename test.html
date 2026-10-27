@@ -30,12 +30,12 @@ function drawBody(x,W,H){
   x.beginPath(); x.moveTo(W*.54,H*.58); x.lineTo(W*.55,H*.95); x.stroke();
 }
 const GS=[
- {name:'White Tee',src:'samples/shirt-white.png',len:1,flare:0,sleeve:.3,fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
- {name:'Blue Shirt',src:'samples/shirt-blue.png',len:1.05,flare:0,sleeve:.45,fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
- {name:'Teal Kurta',src:'samples/kurta.png',len:1.25,flare:0.05,sleeve:1,fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
- {name:'Hoodie',src:'samples/hoodie.png',len:1,flare:0,sleeve:1,fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
- {name:'Denim Jacket',src:'samples/jacket.png',len:0.95,flare:0,sleeve:1,fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
- {name:'Green Dress',src:'samples/dress.png',len:1.6,flare:0.5,sleeve:.3,fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
+ {name:'White Tee',src:'samples/shirt-white.png',len:1,flare:0,sleeve:.3,tw:0.775, fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
+ {name:'Blue Shirt',src:'samples/shirt-blue.png',len:1.05,flare:0,sleeve:.45,tw:0.775, fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
+ {name:'Teal Kurta',src:'samples/kurta.png',len:1.25,flare:0.05,sleeve:1,tw:0.78, fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
+ {name:'Hoodie',src:'samples/hoodie.png',len:1,flare:0,sleeve:1,tw:0.524, fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
+ {name:'Denim Jacket',src:'samples/jacket.png',len:0.95,flare:0,sleeve:1,tw:0.699, fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
+ {name:'Green Dress',src:'samples/dress.png',len:1.6,flare:0.5,sleeve:.3,tw:0.562, fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
 ];
 (async()=>{
  for(const g of GS){
@@ -44,7 +44,7 @@ const GS=[
   const c=document.createElement('canvas'); c.width=W; c.height=H;
   const x=c.getContext('2d');
   drawBody(x,W,H);
-  if(g.img) drawGarmentWarp(x,g.img,g.fit,mockLM(),W,H,false,g.len,g.flare);
+  if(g.img) drawGarmentWarp(x,g.img,g.fit,mockLM(),W,H,false,g.len,g.flare,g.tw);
   const d=document.createElement('div'); d.className='g'; d.appendChild(c);
   const l=document.createElement('div'); l.className='lbl';
   l.textContent=g.name+(g.img?'':' (load fail)'); d.appendChild(l);
