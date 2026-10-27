@@ -1,3 +1,6 @@
+const isExt = typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL;
+const assetBase = isExt ? chrome.runtime.getURL('lib/') : 'lib/';
+const sampleBase = isExt ? chrome.runtime.getURL('samples/') : 'samples/';
 /* TryOn Live v1.1 - real-time garment overlay with MediaPipe Pose
    Realism upgrade: segmentation compositing so arms/hands appear in
    front of the garment, plus soft drop shadow under the garment. */
@@ -60,10 +63,10 @@ window.addEventListener('drop', e => {
 });
 
 /* preloaded sample garments */
-(isExt ? ["shirt-white.png","shirt-black.png","shirt-blue.png","shirt-red.png"] : []).forEach(n => {
+["shirt-white.png","shirt-black.png","shirt-blue.png","shirt-red.png"].forEach(n => {
   const img = new Image();
   img.onload = () => { garments.push({ name: n, img }); if (selected < 0) selected = 0; renderThumbs(); };
-  img.src = chrome.runtime.getURL('samples/' + n);
+  img.src = sampleBase + n;
 });
 
 /* ---------- offscreen layers ---------- */
@@ -118,8 +121,6 @@ camSel.addEventListener('change', () => { if (running) location.reload(); });
 /* ---------- pose ---------- */
 let modelReady = false;
 statusEl.textContent = 'Body tracking model load ho raha hai…';
-const isExt = typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL;
-const assetBase = isExt ? chrome.runtime.getURL('lib/') : 'lib/';
 const pose = new Pose({ locateFile: f => assetBase + f });
 pose.setOptions({
   modelComplexity: 0, smoothLandmarks: true, enableSegmentation: true,
@@ -267,3 +268,6 @@ snapBtn.onclick = () => {
   a.href = cv.toDataURL('image/png');
   a.click();
 };
+
+window.addEventListener('error', e => { try { statusEl.textContent = 'Error: ' + e.message; } catch (_) {} });
+window.addEventListener('unhandledrejection', e => { try { statusEl.textContent = 'Error: ' + (e.reason && e.reason.message || e.reason); } catch (_) {} });
