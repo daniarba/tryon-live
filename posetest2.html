@@ -10,7 +10,7 @@ window.onerror=(m,s,l,c,e)=>{ w('UNCAUGHT: '+m+(e&&e.stack?'\n'+e.stack:'')); };
  try{
   w('env: '+(typeof WebAssembly)+' wasm; ua '+navigator.userAgent.slice(0,60));
   w('creating Pose…');
-  const p=new Pose({locateFile:f=>document.baseURI+'lib/'+f});
+  const p=new Pose({locateFile:f=>new URL('lib/'+f, location.origin+location.pathname).href});
   p.setOptions({modelComplexity:1,smoothLandmarks:true,enableSegmentation:true,minDetectionConfidence:0.5,minTrackingConfidence:0.5});
   p.onResults(r=>{});
   w('initializing…');
