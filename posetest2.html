@@ -10,14 +10,11 @@ console.warn=(...a)=>{w('CW: '+a.join(' ')); _cw(...a);};
 const _of=window.fetch.bind(window);
 window.fetch=function(u,o){ try{ const p=_of(u,o); p.then(r=>w('FETCH '+r.status+' '+u)).catch(e=>w('FETCHERR '+u+' '+e)); return p; }catch(e){ w('FETCHTHROW '+u+' '+e); throw e; } };
 let t0=Date.now(); setInterval(()=>{ if(!document.body.dataset.done){ out.textContent=lines.join('\n')+'\n…waiting '+Math.round((Date.now()-t0)/1000)+'s'; } },1000);
+window.onerror=(m,s,l,c,e)=>{ w('UNCAUGHT: '+m+(e&&e.stack?'\n'+e.stack:'')); };
 </script>
 <script src="lib/pose.js"></script>
 <script>
 const out=document.getElementById('out');
-const lines=[]; const w=(s)=>{lines.push(s); out.textContent=lines.join('\n');};
-let t0=Date.now(); setInterval(()=>{ if(!document.body.dataset.done){ out.textContent=lines.join('\n')+'\n…waiting '+Math.round((Date.now()-t0)/1000)+'s'; } },1000);
-
-window.onerror=(m,s,l,c,e)=>{ w('UNCAUGHT: '+m+(e&&e.stack?'\n'+e.stack:'')); };
 (async()=>{
  try{
   w('env: '+(typeof WebAssembly)+' wasm; ua '+navigator.userAgent.slice(0,60));
@@ -28,7 +25,6 @@ window.onerror=(m,s,l,c,e)=>{ w('UNCAUGHT: '+m+(e&&e.stack?'\n'+e.stack:'')); };
   w('initializing…');
   await p.initialize();
   w('POSE INIT OK'); document.body.dataset.done='ok';
-  const fake={image:createCanvas()};
   function createCanvas(){const c=document.createElement('canvas');c.width=64;c.height=64;const x=c.getContext('2d');x.fillStyle='#456';x.fillRect(0,0,64,64);return c;}
   await p.send({image:createCanvas()});
   w('SEND OK (landmarks pipeline alive)'); document.body.dataset.done='ok2';
