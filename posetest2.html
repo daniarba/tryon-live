@@ -1,6 +1,16 @@
 <!doctype html><html><head><meta charset="utf-8"><title>posetest2</title></head>
 <body style="background:#111;color:#0f0;font:14px monospace">
 <pre id="out">starting…</pre>
+<script>
+const lines=[]; const w=(s)=>{lines.push(s); out.textContent=lines.join('\n');};
+const _cl=console.log.bind(console), _ce=console.error.bind(console), _cw=console.warn.bind(console);
+console.log=(...a)=>{w('C: '+a.join(' ')); _cl(...a);};
+console.error=(...a)=>{w('CE: '+a.join(' ')); _ce(...a);};
+console.warn=(...a)=>{w('CW: '+a.join(' ')); _cw(...a);};
+const _of=window.fetch.bind(window);
+window.fetch=function(u,o){ try{ const p=_of(u,o); p.then(r=>w('FETCH '+r.status+' '+u)).catch(e=>w('FETCHERR '+u+' '+e)); return p; }catch(e){ w('FETCHTHROW '+u+' '+e); throw e; } };
+let t0=Date.now(); setInterval(()=>{ if(!document.body.dataset.done){ out.textContent=lines.join('\n')+'\n…waiting '+Math.round((Date.now()-t0)/1000)+'s'; } },1000);
+</script>
 <script src="lib/pose.js"></script>
 <script>
 const out=document.getElementById('out');
