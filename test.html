@@ -6,8 +6,8 @@ canvas{background:#0a0d13;border-radius:8px}
 .lbl{color:#93a0b4;margin-top:3px}
 h3{margin:6px 0}
 </style></head><body>
-<h3>fit test (synthetic body, no camera)</h3>
-<script src="fit.js"></script>
+<h3>fit test v2 (synthetic body, no camera)</h3>
+<script src="fit.js?v=2"></script>
 <script>
 function mockLM(){
   const a=new Array(33).fill(null);
@@ -30,8 +30,8 @@ function drawBody(x,W,H){
   x.beginPath(); x.moveTo(W*.54,H*.58); x.lineTo(W*.55,H*.95); x.stroke();
 }
 const GS=[
- {name:'White Tee',src:'samples/shirt-white.png',len:1,flare:0,sleeve:.3,tw:0.775, fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
- {name:'Blue Shirt',src:'samples/shirt-blue.png',len:1.05,flare:0,sleeve:.45,tw:0.775, fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
+ {name:'White Tee',src:'samples/shirt-white.png',len:1,flare:0,sleeve:.3,tw:0.78, fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
+ {name:'Blue Shirt',src:'samples/shirt-blue.png',len:1.05,flare:0,sleeve:.45,tw:0.683, fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
  {name:'Teal Kurta',src:'samples/kurta.png',len:1.25,flare:0.05,sleeve:1,tw:0.78, fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
  {name:'Hoodie',src:'samples/hoodie.png',len:1,flare:0,sleeve:1,tw:0.524, fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},
  {name:'Denim Jacket',src:'samples/jacket.png',len:0.95,flare:0,sleeve:1,tw:0.699, fit:{size:1,dy:0,dx:0,rot:0,opacity:1}},

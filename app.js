@@ -20,10 +20,10 @@ let fpsN=0, fpsT=performance.now();
 
 const CATS=[['all','All'],['tops','Tops'],['shirts','Shirts'],['kurta','Kurta'],['hoodie','Hoodie'],['jacket','Jackets'],['dress','Dresses'],['uploaded','Uploaded']];
 const BUILTIN=[
- {id:'white', name:'White Tee',        cat:'tops',   src:sampleBase+'shirt-white.png', len:1,    sleeve:0.3,  flare:0, tw:0.775},
- {id:'black', name:'Black Tee',        cat:'tops',   src:sampleBase+'shirt-black.png', len:1,    sleeve:0.3,  flare:0, tw:0.775},
- {id:'red',   name:'Red Tee',          cat:'tops',   src:sampleBase+'shirt-red.png',   len:1,    sleeve:0.3,  flare:0, tw:0.775},
- {id:'blue',  name:'Blue Shirt',       cat:'shirts', src:sampleBase+'shirt-blue.png',  len:1.05, sleeve:0.45, flare:0, tw:0.775},
+ {id:'white', name:'White Tee',        cat:'tops',   src:sampleBase+'shirt-white.png', len:1,    sleeve:0.3,  flare:0, tw:0.78},
+ {id:'black', name:'Black Tee',        cat:'tops',   src:sampleBase+'shirt-black.png', len:1,    sleeve:0.3,  flare:0, tw:0.78},
+ {id:'red',   name:'Red Tee',          cat:'tops',   src:sampleBase+'shirt-red.png',   len:1,    sleeve:0.3,  flare:0, tw:0.78},
+ {id:'blue',  name:'Blue Shirt',       cat:'shirts', src:sampleBase+'shirt-blue.png',  len:1.05, sleeve:0.45, flare:0, tw:0.683},
  {id:'kurta', name:'Teal Kurta',       cat:'kurta',  src:sampleBase+'kurta.png',       len:1.25, sleeve:1,    flare:0.05, tw:0.78},
  {id:'hoodie',name:'Charcoal Hoodie',  cat:'hoodie', src:sampleBase+'hoodie.png',      len:1,    sleeve:1,    flare:0, tw:0.524},
  {id:'jacket',name:'Denim Jacket',     cat:'jacket', src:sampleBase+'jacket.png',      len:0.95, sleeve:1,    flare:0, tw:0.699},
