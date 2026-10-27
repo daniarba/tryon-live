@@ -149,7 +149,7 @@ uploadEl.addEventListener('change',async()=>{
 async function initPose(){
   if(initBusy) return; initBusy=true;
   try{
-    pose=new Pose({locateFile:(f)=>assetBase+'lib/'+f+(f.indexOf('?')>-1?'':'?v=6')});
+    pose=new Pose({locateFile:(f)=>{const BUST=['pose_solution_simd_wasm_bin.js','pose_solution_simd_wasm_bin.wasm','pose_landmark_full.tflite','pose_landmark_lite.tflite'];return assetBase+'lib/'+f+(BUST.indexOf(f)>-1?'?v=6':'');}});
     pose.setOptions({modelComplexity:complexity, smoothLandmarks:true, enableSegmentation:true,
       minDetectionConfidence:0.5, minTrackingConfidence:0.5});
     pose.onResults(onResults);

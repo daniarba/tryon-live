@@ -19,7 +19,7 @@ const out=document.getElementById('out');
  try{
   w('env: '+(typeof WebAssembly)+' wasm; ua '+navigator.userAgent.slice(0,60));
   w('creating Pose…');
-  const p=new Pose({locateFile:f=>new URL('lib/'+f, location.origin+location.pathname).href});
+  const p=new Pose({locateFile:(f)=>{const BUST=['pose_solution_simd_wasm_bin.js','pose_solution_simd_wasm_bin.wasm','pose_landmark_full.tflite','pose_landmark_lite.tflite'];return new URL('lib/'+f+(BUST.indexOf(f)>-1?'?v=6':''), location.origin+location.pathname).href;}});
   p.setOptions({modelComplexity:1,smoothLandmarks:true,enableSegmentation:true,minDetectionConfidence:0.5,minTrackingConfidence:0.5});
   p.onResults(r=>{});
   w('initializing…');
