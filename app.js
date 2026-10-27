@@ -6,7 +6,7 @@ const sampleBase = isExt ? chrome.runtime.getURL('samples/') : 'samples/';
 const $=(id)=>document.getElementById(id);
 const video=$('video'), cv=$('cv'), ctx=cv.getContext('2d');
 /* basic placement: default torso landmarks used until the body model locks on */
-const FAKELM=(()=>{ const f=new Array(25).fill(null); f[11]={x:0.39,y:0.33}; f[12]={x:0.61,y:0.33}; f[23]={x:0.415,y:0.54}; f[24]={x:0.585,y:0.54}; return f; })();
+const FAKELM=(()=>{ const f=new Array(25).fill(null); f[11]={x:0.40,y:0.48}; f[12]={x:0.60,y:0.48}; f[23]={x:0.42,y:0.70}; f[24]={x:0.58,y:0.70}; return f; })();
 
 /* smart fallback: jab body model load na ho, matte se torso ka andaza */
 let fbLM=null, fbLMAt=0;
@@ -24,10 +24,10 @@ function fallbackLM(){
       if(cnt>400){
         const bw=xmax-xmin, bh=bot-top;
         const f=new Array(25).fill(null);
-        f[11]={x:(xmin+0.30*bw)/w, y:(top+0.24*bh)/hh};
-        f[12]={x:(xmin+0.70*bw)/w, y:(top+0.24*bh)/hh};
-        f[23]={x:(xmin+0.34*bw)/w, y:(top+0.56*bh)/hh};
-        f[24]={x:(xmin+0.66*bw)/w, y:(top+0.56*bh)/hh};
+        f[11]={x:(xmin+0.28*bw)/w, y:(top+0.30*bh)/hh};
+        f[12]={x:(xmin+0.72*bw)/w, y:(top+0.30*bh)/hh};
+        f[23]={x:(xmin+0.34*bw)/w, y:(top+0.64*bh)/hh};
+        f[24]={x:(xmin+0.66*bw)/w, y:(top+0.64*bh)/hh};
         fbLM=f; fbLMAt=now; return f;
       }
     }catch(e){}
@@ -155,7 +155,8 @@ async function initPose(){
     pose.onResults(onResults);
     try{ await pose.initialize(); }
     catch(e){ initErr=(e&&e.message)||String(e);
-      status('Body model error: '+initErr+' | page refresh karke dobara try karo', false); }
+      if(!initPose._retried){ initPose._retried=true; status('Body model dobara load ho raha hai…'); pose=null; setTimeout(()=>{ if(cameraOn&&!pose) initPose(); },2500); }
+      else status('Body model error: '+initErr+' | page refresh karke dobara try karo', false); }
   }finally{ initBusy=false; }
 }
 function onResults(r){
