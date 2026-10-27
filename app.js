@@ -149,7 +149,7 @@ uploadEl.addEventListener('change',async()=>{
 async function initPose(){
   if(initBusy) return; initBusy=true;
   try{
-    pose=new Pose({locateFile:(f)=>assetBase+'lib/'+f});
+    pose=new Pose({locateFile:(f)=>assetBase+'lib/'+f+(f.indexOf('?')>-1?'':'?v=6')});
     pose.setOptions({modelComplexity:complexity, smoothLandmarks:true, enableSegmentation:true,
       minDetectionConfidence:0.5, minTrackingConfidence:0.5});
     pose.onResults(onResults);
