@@ -5,6 +5,8 @@ const assetBase = isExt ? chrome.runtime.getURL('') : '';
 const sampleBase = isExt ? chrome.runtime.getURL('samples/') : 'samples/';
 const $=(id)=>document.getElementById(id);
 const video=$('video'), cv=$('cv'), ctx=cv.getContext('2d');
+/* basic placement: default torso landmarks used until the body model locks on */
+const FAKELM=(()=>{ const f=new Array(25).fill(null); f[11]={x:0.39,y:0.33}; f[12]={x:0.61,y:0.33}; f[23]={x:0.415,y:0.54}; f[24]={x:0.585,y:0.54}; return f; })();
 const stTxt=$('stTxt'), stDot=document.querySelector('#status .dot'), fpsTxt=$('fpsTxt');
 const camSel=$('cam'), qualSel=$('qual'), matteSel=$('matte');
 const grid=$('grid'), searchEl=$('search'), chipsEl=$('chips'), cntEl=$('cnt'), uploadEl=$('upload');
@@ -74,6 +76,7 @@ function renderCatalog(){
     c.onclick=()=>wear(g);
     c.draggable=true;
     c.ondragstart=(e)=>{ try{ e.dataTransfer.setData('text/plain', g.id); e.dataTransfer.effectAllowed='copy'; }catch(e2){} };
+    c.onclick=()=>wear(g);
     grid.appendChild(c);
   }
   const up=document.createElement('div'); up.className='card upl'; up.textContent='+ Upload garment PNG';
@@ -176,6 +179,7 @@ async function startCamera(){
   try{ await video.play(); }catch(e){}
   cameraOn=true; startBtn.textContent='Stop camera';
   status('Body tracking model load ho raha hai…');
+  setTimeout(()=>{ if(cameraOn && !modelReady) status('Model nahi mila, abhi basic placement me kapay pehn rahe hain', true); },15000);
   listCams();
   if(!pose) initPose();
   sendLoop();
@@ -257,8 +261,8 @@ function render(){
   try{ ctx.drawImage(video,0,0,W,H); }catch(e){}
   ctx.restore();
   const fresh=lastLm && (now-lastLmAt<700);
-  if(fresh && selected && selected.img){
-    drawGarmentWarp(ctx,selected.img,selected.fit,lastLm,W,H,mirrored,selected.len,selected.flare,selected.tw);
+  if(selected && selected.img){
+    drawGarmentWarp(ctx,selected.img,selected.fit,fresh?lastLm:FAKELM,W,H,mirrored,selected.len,selected.flare,selected.tw);
   }
   const mask=matteOK?matteC:(mpMask&&!matteOK?mpMask:null);
   if(fresh && mask) composite(mask,lastLm,W,H);
